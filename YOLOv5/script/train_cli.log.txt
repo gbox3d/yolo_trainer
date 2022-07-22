@@ -1,0 +1,9 @@
+PYTHONPATH=/home/gbox3d/work/visionApp/yolov5 python3 train.py \
+--data /home/gbox3d/work/visionApp/daisy_project/trainer/yolo_v5/config/digit_set_7.yaml \
+--weights yolov5s.pt \
+--batch 22 \
+--epoch 10000 \
+--img 640 \
+--device 1 \
+--save-period 1000 \
+--hyp /home/gbox3d/work/visionApp/yolov5/data/hyps/hyp.scratch.yaml \

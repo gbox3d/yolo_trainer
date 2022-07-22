@@ -1,0 +1,22 @@
+path: /home/gbox3d/work/datasets/digit/set_7  # dataset root dir
+train: train  # train images (relative to 'path') 128 images
+val: valid  # val images (relative to 'path') 128 images
+test: test # test images (optional)
+voc : voc # voc format
+split:  # define train/val set split ratio
+  train : 0.8
+  val : 0.2
+
+# Classes
+nc: 10  # number of classes
+names: 
+- dight_0
+- dight_1
+- dight_2
+- dight_3
+- dight_4
+- dight_5
+- dight_6
+- dight_7
+- dight_8
+- dight_9
