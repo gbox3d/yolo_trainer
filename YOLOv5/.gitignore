@@ -1,4 +1,4 @@
 config/*
-!sample.yaml
+!config/sample.yaml
 output/
 weights/*

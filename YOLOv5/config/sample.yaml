@@ -1,15 +1,22 @@
-path: /home/gbox3d/work/datasets/digit/set_7  # dataset root dir
-train: train  # train images (relative to 'path') 128 images
-val: valid  # val images (relative to 'path') 128 images
-test: test # test images (optional)
-voc : voc # voc format
-split:  # define train/val set split ratio
-  train : 0.8
-  val : 0.2
+path: /home/gbox3d/work/dataset/madang/madang_lts
+train: yolov5/train
+test: yolov5/test
+val: yolov5/val
 
-# Classes
-nc: 10  # number of classes
+voc: voc/
+img: voc/
+
+split:  # define train/val set split ratio
+  train : 0.7
+  val : 0.1
+  test : 0.2
+  
+nc: 14
 names: 
+- temper_sensor
+- water_wheel_run
+- water_wheel_stop
+- water_bubble
 - dight_0
 - dight_1
 - dight_2
@@ -20,3 +27,6 @@ names:
 - dight_7
 - dight_8
 - dight_9
+
+voc_util_path : /home/gbox3d/work/visionApp/daisy_project/trainer/yolo_v5
+trainer_path : /home/gbox3d/work/visionApp/Yolov5_DeepSort_Pytorch/yolov5

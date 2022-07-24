@@ -1,4 +1,5 @@
 #%%
+from cgi import test
 import yaml
 import os
 import shutil
@@ -18,123 +19,74 @@ import PIL.Image as Image
 
 from xml.etree.ElementTree import parse
 #%%
-# dataset_config_file = '../../../dataset/test/data.yaml'
-# output_path = '../../../dataset/test/'
-# dataset_path = '/home/gbox3d/work/datasets/digit/'
 no_log = False
-voc_path = 'voc'
-config_file = '/home/gbox3d/work/visionApp/daisy_project/trainer/yolo_v5/config/digit_set_7.yaml'
-# output_path = 'set_7'
+# voc_path = 'voc'
+config_file = './config/madang.yaml'
 
 
-#%%
-parser = argparse.ArgumentParser()
-# parser.add_argument('--dataset-path','-dp',type=str, default=dataset_path ,help='data set path')
-parser.add_argument('--config-file','-cf',type=str, default=config_file ,help='config file')
-parser.add_argument('--no-log',action='store_true', help='Dont display log')
-# parser.add_argument('--voc-path','-vp',type=str, default=voc_path ,help='voc path')
-# parser.add_argument('--output-path','-op',type=str, default=output_path ,help='output path')
-
-opt = parser.parse_args()
-# dataset_path = opt.dataset_path
-no_log = opt.no_log
-# voc_path = opt.voc_path
-config_file = opt.config_file
-# output_path = opt.output_path
-# print(no_log)
-# print('data set path : ' + dataset_path)
 
 # %%
-def _doLabelTxt( dataset_path,voc_path,train_rt=0.7,valid_rt=0.2,no_log=True) :
+def _doLabelTxt( dataset_path,img_path,voc_path,
+                train_path,test_path,val_path,
+                train_rt,valid_rt,test_rt,
+                no_log=True) :
     # _test_dir = './test'
     # out_path = f'{dataset_path}'
     # _out_path = out_path + '/labels'
 
     src_path = os.path.join(dataset_path,voc_path)
     print(f'voc path : {src_path}')
-
-    if train_rt + valid_rt < 1 :
-
-        train_path =  os.path.join(dataset_path,'train')# f'{dataset_path}/train'
-        val_path =  os.path.join(dataset_path,'valid')# f'{dataset_path}/valid'
-        test_path =  os.path.join(dataset_path,'test')# f'{dataset_path}/test'
-        # val_path = f'{dataset_path}/valid'
-        # test_path = f'{dataset_path}/test'
-
-        path_list = [train_path,val_path,test_path]
-
-        for _path in path_list :
-            if os.path.exists(_path):
-                shutil.rmtree(_path)  # delete output folder
-            os.makedirs(_path) 
-            os.makedirs(_path+'/labels') 
-            os.makedirs(_path+'/images') 
-
-        _path = Path(src_path)
+    
+    path_list = []
         
-        files = _path.glob('*')
-        _file_list = list(files)
-        xml_files = [x for x in _file_list if str(x).split('.')[-1].lower() in ['xml']]
+    if train_path is not None :
+        path_list.append(os.path.join(dataset_path,train_path) )
+    if val_path is not None :
+        path_list.append(os.path.join(dataset_path,val_path) )
+    if test_path is not None :
+        path_list.append(os.path.join(dataset_path,test_path) )
         
-        #검증세트 분리하기 
-        shuffle(xml_files)
+    print(f'path_list : {path_list}')
+    
+    for _path in path_list :
+        if os.path.exists(_path):
+            shutil.rmtree(_path)  # delete output folder
+        os.makedirs(_path) 
+        os.makedirs(_path+'/labels') 
+        os.makedirs(_path+'/images') 
 
-        _size = len(xml_files)
+    _path = Path(src_path)
+    
+    files = _path.glob('*')
+    _file_list = list(files)
+    xml_files = [x for x in _file_list if str(x).split('.')[-1].lower() in ['xml']]
+    
+    #검증세트 분리하기 
+    shuffle(xml_files)
 
-        _start_index = 0
-        _end_index = trunc(_size * train_rt)
-        _train_list = xml_files[ _start_index : _end_index]
+    _size = len(xml_files)
+
+    _file_list_set = []
+    
+    _start_index = 0
+    _end_index = trunc(_size * train_rt)
+    _train_list = xml_files[ _start_index : _end_index]
+    _file_list_set.append(_train_list)
+    
+    if test_rt is None :
+        _valid_list = xml_files[ _end_index : ]
+        _file_list_set.append(_valid_list)
+    else :
         _start_index = _end_index
-        _end_index =  trunc( _size * (train_rt + valid_rt) )
+        _end_index =  _end_index + trunc( _size * (valid_rt) )
         _valid_list = xml_files[ _start_index : _end_index ]
+        _file_list_set.append(_valid_list)
         _test_list = xml_files[ _end_index :  ]
-        
-        _file_list_set = (_train_list,_valid_list,_test_list)
-        print(f'train : {len(_train_list)} , valid : {len(_valid_list)} , test : {len(_test_list)}')
-    else : # test set skip
-        train_path =  os.path.join(dataset_path,'train')# f'{dataset_path}/train'
-        val_path =  os.path.join(dataset_path,'valid')# f'{dataset_path}/valid'
-        # test_path =  os.path.join(dataset_path,'test')# f'{dataset_path}/test'
-        # val_path = f'{dataset_path}/valid'
-        # test_path = f'{dataset_path}/test'
+        _file_list_set.append(_test_list)
 
-        path_list = [train_path,val_path]
-
-        for _path in path_list :
-            if os.path.exists(_path):
-                shutil.rmtree(_path)  # delete output folder
-            os.makedirs(_path) 
-            os.makedirs(_path+'/labels') 
-            os.makedirs(_path+'/images') 
-
-        _path = Path(src_path)
-        
-        files = _path.glob('*')
-        _file_list = list(files)
-        xml_files = [x for x in _file_list if str(x).split('.')[-1].lower() in ['xml']]
-        
-        #검증세트 분리하기 
-        shuffle(xml_files)
-
-        _size = len(xml_files)
-
-        _start_index = 0
-        _end_index = trunc(_size * train_rt)
-        _train_list = xml_files[ _start_index : _end_index]
-        _start_index = _end_index
-        _end_index =  trunc( _size * (train_rt + valid_rt) )
-        _valid_list = xml_files[ _start_index : _end_index ]
-        # _test_list = xml_files[ _end_index :  ]
-        
-        _file_list_set = (_train_list,_valid_list)
-        print(f'train : {len(_train_list)} , valid : {len(_valid_list)} ')
-
-
-    # for _i in range(0, 3) :
+    
     for _i,_file_list in enumerate(_file_list_set) :
         _out_path = path_list[_i] + '/labels'
-        # _file_list = _file_list_set[_i]
-
         print(f'output :{ _out_path} , {len(_file_list)}')
         
         for _file in _file_list :
@@ -182,13 +134,14 @@ def _doLabelTxt( dataset_path,voc_path,train_rt=0.7,valid_rt=0.2,no_log=True) :
                         fd.write(_out)
 
             # 이미지 파일 카피 
+            img_src_path = os.path.join(dataset_path,img_path)
             _out_path_img = path_list[_i] + '/images'
 
             _img_type_list = ['jpeg', 'png','jpg']
             _index = 0
 
             for _img_type in _img_type_list:
-                _image_file = f'{src_path}/{_fname}.{_img_type}'
+                _image_file = f'{img_src_path}/{_fname}.{_img_type}'
                 if Path(_image_file).exists() == True :
                     if no_log is not True: 
                         # print(_out,end='')
@@ -197,33 +150,54 @@ def _doLabelTxt( dataset_path,voc_path,train_rt=0.7,valid_rt=0.2,no_log=True) :
                     break
 
                 _index += 1
+
+
+#%%
+parser = argparse.ArgumentParser()
+# parser.add_argument('--dataset-path','-dp',type=str, default=dataset_path ,help='data set path')
+parser.add_argument('--config-file','-cf',type=str, default=config_file ,help='config file')
+parser.add_argument('--no-log',action='store_true', help='Dont display log')
+# parser.add_argument('--voc-path','-vp',type=str, default=voc_path ,help='voc path')
+# parser.add_argument('--output-path','-op',type=str, default=output_path ,help='output path')
+
+opt = parser.parse_args()
+# dataset_path = opt.dataset_path
+no_log = opt.no_log
+# voc_path = opt.voc_path
+config_file = opt.config_file
+# output_path = opt.output_path
+# print(no_log)
+# print('data set path : ' + dataset_path)
     
 
 #%%
 config_data = {}
 label_dic = {}
-# dataset_config_file = f'{dataset_path}/data.yaml'
 
+print('start version 0.9.0')
 
 try:
     with open(config_file, 'r') as f:
         config_data = yaml.safe_load(f)
         
         for _index,_lb in enumerate(config_data['names'] ):
-            # print(_lb)
             label_dic[_lb] = _index
-        # dataset_path = 
-        
-    # print(config_data)
 
-    _doLabelTxt(
+    _doLabelTxt (
         dataset_path = config_data['path'],
         voc_path=config_data['voc'],
-        train_rt=config_data['split']['train'],
+        img_path=config_data['img'],
+        train_path = config_data['train'] if 'train' in config_data else None,
+        test_path= config_data['test'] if 'test' in config_data else None,
+        val_path= config_data['val'] if 'val' in config_data else None,
+        train_rt= config_data['split']['train'],
         valid_rt=config_data['split']['val'],
+        test_rt=config_data['split']['test'] if 'test' in config_data['split'] else None,
         no_log=no_log)
     print('complete')
 except  Exception as ex:
     print('error : ')   
     config_data = None 
     print(ex)
+
+# %%
