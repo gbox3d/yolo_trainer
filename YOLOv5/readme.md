@@ -66,7 +66,8 @@ bash train_yolov5.sh -d ~/work/dataset/handsign -e 10000 -w yolov5s.pt -b 64 -t 
 
 #PYTHONPATH=/home/gbox3d/work/visionApp/yolov5 python train.py --data /home/gbox3d/work/visionApp/daisy_project/trainer/yolo_v5/config/digit_set_7.yaml --epochs 10000 --batch 22 --cfg /home/gbox3d/work/visionApp/yolov5/models/yolov5s.yaml --device 1
 
-PYTHONPATH=/home/gbox3d/work/visionApp/yolov5 python /home/gbox3d/work/visionApp/yolov5/train.py --data /home/gbox3d/work/visionApp/daisy_project/trainer/yolo_v5/config/madang.yaml --epochs 10000 --batch 50 --cfg /home/gbox3d/work/visionApp/yolov5/models/yolov5s.yaml --device 0 --project /home/gbox3d/work/visionApp/daisy_project/trainer/yolo_v5/runs/train/madang --save-period 1000
+PYTHONPATH=../../yolov5 python ../../yolov5/train.py --data ./config/madang.yaml --epochs 10000 --batch -1 --cfg ../../yolov5/models/yolov5s.yaml --device 0 --project ./output/madang/runs/train/madang --save-period 1000
+
 ```
 
 ## 텐서보드 사용하기
