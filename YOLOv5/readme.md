@@ -44,19 +44,19 @@ python voc2yolo_simple.py --ds-path=/home/gbox3d/work/datasets/digit --src=voc_t
 
 ## 학습
 
-스크립트 내부에서 yolov5의 train.py를 사용해서 훈련을 수행한다.  
+yolov5 에서 배포하는 train.py 로 훈련을 실시한다.  
 
--t 로 지정하는 tool path는 yolov5가 설치된 폴더를 지정한다.  
--g 옵션으로 gpus를 지정할 수 있다. 예) -g 0,1,2,3  
--w 옵션으로 훈련 가중치파일지정. 예) -w yolov5s  
--m 옵션으로 모델을 지정할 수 있다. 예) -m yolov5s
+--data :  데이터셋 폴더 경로
+--epochs :  에폭횟수  
+--cfg :  설정파일  
+--device:  gpu 지정  
+--projrct:  결과물 출력 디랙토리 경로  
 
-gpu를 한개만 사용할경우에는 train_yolov5_single.sh 를 사용한다.  
+조기 종료 지정 :
+--patience 300` or use `--patience 0` to disable EarlyStopping.         
 
-사용 예
-```sh
-bash train_yolov5.sh -d ~/work/dataset/handsign -e 10000 -w yolov5s.pt -b 64 -t ~/work/visionApp/yolov5/
-```
+
+
 ### 특정 gpu 1개만 지정하여 사용하기
 
 
@@ -66,7 +66,7 @@ bash train_yolov5.sh -d ~/work/dataset/handsign -e 10000 -w yolov5s.pt -b 64 -t 
 
 #PYTHONPATH=/home/gbox3d/work/visionApp/yolov5 python train.py --data /home/gbox3d/work/visionApp/daisy_project/trainer/yolo_v5/config/digit_set_7.yaml --epochs 10000 --batch 22 --cfg /home/gbox3d/work/visionApp/yolov5/models/yolov5s.yaml --device 1
 
-PYTHONPATH=../../yolov5 python ../../yolov5/train.py --data ./config/madang.yaml --epochs 10000 --batch -1 --cfg ../../yolov5/models/yolov5s.yaml --device 0 --project ./output/madang/runs/train/madang --save-period 1000
+PYTHONPATH=../../yolov5 python ../../yolov5/train.py --data ./config/madang.yaml --epochs 10000 --batch -1 --cfg ../../yolov5/models/yolov5s.yaml --device 0 --project ./output/runs/train/madang --save-period 1000
 
 ```
 
